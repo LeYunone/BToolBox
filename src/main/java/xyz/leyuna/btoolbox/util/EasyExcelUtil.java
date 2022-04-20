@@ -1,6 +1,17 @@
 package xyz.leyuna.btoolbox.util;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.annotation.ExcelProperty;
+import org.apache.poi.ss.formula.functions.T;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author pengli
@@ -9,8 +20,95 @@ import com.alibaba.excel.EasyExcel;
  */
 public class EasyExcelUtil {
 
-    public void read(){
-        EasyExcel.read().sheet().doRead();
+    @Resource
+    private HttpServletResponse response;
+
+    private Function function;
+
+    /**
+     * 定义ResponseType的设置方式
+     */
+    enum ResponType {
+        /**
+         * application/octet-stream 下载方式
+         */
+        OCTET_STREAM(1);
+
+        ResponType(Integer type) {
+            this.type = type;
+        }
+
+        private Integer type;
+
+        protected void setResponse(HttpServletResponse response) {
+            switch (type) {
+                case 1:
+                    response.setHeader("Content-Disposition", "attachment;filename=export.xlsx");
+                    response.setContentType("application/octet-stream");
+                    response.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    }
+
+    class exportClass {
+        @ExcelProperty
+        Object object;
+    }
+
+    public void downloadXlsx(Collection<T> collection) {
+        this.downloadXlsx(collection, ResponType.OCTET_STREAM);
+    }
+
+    /**
+     * 导出集合指定的字段 ， 不需要collection中用@ExcelProperty 标注，创建虚拟类
+     *
+     * @param collection
+     * @param function
+     */
+    public void downloadXlsx(Collection<T> collection, Function<T, Object> function) {
+        List<Object> write_excel = new ArrayList<>();
+        for (T t : collection) {
+            Object apply = function.apply(t);
+            write_excel.add(apply);
+        }
+        try {
+            EasyExcel.write(response.getOutputStream()).head(tableHead()).sheet().doWrite(write_excel);
+        } catch (IOException e) {
+        }
+    }
+
+    private List<List<String>> tableHead() {
+        List<List<String>> head = new ArrayList<>();
+        return head;
+    }
+
+    /**
+     * 下载
+     *
+     * @param collection 集合
+     */
+    public void downloadXlsx(Collection<T> collection, EasyExcelUtil.ResponType responType) {
+        responType.setResponse(response);
+        try {
+            EasyExcel.write(response.getOutputStream(), T.class).sheet().doWrite((List) collection);
+        } catch (IOException e) {
+        }
+    }
+
+    /**
+     * 下载
+     *
+     * @param path 路径
+     */
+    public void download(String path) {
+        File file = new File(path);
+        if (!file.exists()) {
+            return;
+        }
     }
 }
 
