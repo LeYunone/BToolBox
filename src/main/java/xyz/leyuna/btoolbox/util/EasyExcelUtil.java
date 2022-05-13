@@ -3,6 +3,7 @@ package xyz.leyuna.btoolbox.util;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.annotation.ExcelProperty;
 import org.apache.poi.ss.formula.functions.T;
+import xyz.leyuna.btoolbox.function.LambdaUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -69,7 +70,7 @@ public class EasyExcelUtil {
      * @param collection
      * @param function
      */
-    public void downloadXlsx(Collection<T> collection, Function<T, Object> function) {
+    public void downloadXlsx(Collection<T> collection, LambdaUtils.FieldNameFuction function) {
         Class clazz = T.class;
         //分析属性，排除除了指定属性外所有属性
         Field[] fields = clazz.getFields();
@@ -77,6 +78,8 @@ public class EasyExcelUtil {
         for(Field field:fields){
             set.add(field.getName());
         }
+        String fieldName = LambdaUtils.getFieldName(function);
+        set.remove(fieldName);
 
     }
 

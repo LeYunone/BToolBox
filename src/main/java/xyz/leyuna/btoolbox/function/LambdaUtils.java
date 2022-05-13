@@ -13,7 +13,7 @@ import java.util.function.Function;
  */
 public class LambdaUtils {
 
-    interface FieldNameFuction<T,R> extends Serializable, Function<T,R> {
+    public interface FieldNameFuction<T,R> extends Serializable, Function<T,R> {
         static String getFieldName(Object lambda){
             try {
                 Method method = lambda.getClass().getDeclaredMethod("writeReplace");
