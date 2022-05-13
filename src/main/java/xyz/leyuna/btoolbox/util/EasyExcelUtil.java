@@ -8,9 +8,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -70,20 +70,14 @@ public class EasyExcelUtil {
      * @param function
      */
     public void downloadXlsx(Collection<T> collection, Function<T, Object> function) {
-        List<Object> write_excel = new ArrayList<>();
-        for (T t : collection) {
-            Object apply = function.apply(t);
-            write_excel.add(apply);
+        Class clazz = T.class;
+        //分析属性，排除除了指定属性外所有属性
+        Field[] fields = clazz.getFields();
+        Set<String> set = new HashSet<>();
+        for(Field field:fields){
+            set.add(field.getName());
         }
-        try {
-            EasyExcel.write(response.getOutputStream()).head(tableHead()).sheet().doWrite(write_excel);
-        } catch (IOException e) {
-        }
-    }
 
-    private List<List<String>> tableHead() {
-        List<List<String>> head = new ArrayList<>();
-        return head;
     }
 
     /**
@@ -96,18 +90,6 @@ public class EasyExcelUtil {
         try {
             EasyExcel.write(response.getOutputStream(), T.class).sheet().doWrite((List) collection);
         } catch (IOException e) {
-        }
-    }
-
-    /**
-     * 下载
-     *
-     * @param path 路径
-     */
-    public void download(String path) {
-        File file = new File(path);
-        if (!file.exists()) {
-            return;
         }
     }
 }
