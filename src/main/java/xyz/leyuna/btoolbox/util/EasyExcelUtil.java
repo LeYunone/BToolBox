@@ -7,6 +7,7 @@ import xyz.leyuna.btoolbox.function.FieldNameFuction;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -58,7 +59,7 @@ public class EasyExcelUtil {
         Object object;
     }
 
-    public <T>void downloadXlsx(Collection<T> collection) {
+    public static <T> void downloadXlsx(Collection<T> collection) {
         downloadXlsx(collection, ResponType.OCTET_STREAM);
     }
 
@@ -68,17 +69,23 @@ public class EasyExcelUtil {
      * @param collection
      * @param function
      */
-    public <T,R> void downloadXlsx(Collection<T> collection, FieldNameFuction<T,R> function) {
-        Class clazz = ObjectUtil.getCollectionClazz(collection);
+    public static <T, R> void downloadXlsx(Collection<T> collection, File file, FieldNameFuction<T, R> function) {
+        T next = collection.iterator().next();
+        Class clazz = next.getClass();
         //分析属性，排除除了指定属性外所有属性
-        Field[] fields = clazz.getFields();
+        Field[] fields = clazz.getDeclaredFields();
         Set<String> set = new HashSet<>();
-        for(Field field:fields){
+        for (Field field : fields) {
             set.add(field.getName());
         }
         //获得属性名
         String fieldName = FieldUtil.getFieldName(function);
         set.remove(fieldName);
+        EasyExcel.write(file,clazz).excludeColumnFiledNames(set).sheet().doWrite(new ArrayList(collection));
+    }
+
+    public static <T, R> void downloadXlsx(Collection<T> collection, String fileName, FieldNameFuction<T, R> function) {
+        downloadXlsx(collection,new File(fileName),function);
     }
 
     /**
@@ -86,7 +93,7 @@ public class EasyExcelUtil {
      *
      * @param collection 集合
      */
-    public void downloadXlsx(Collection<?> collection, EasyExcelUtil.ResponType responType) {
+    public static void downloadXlsx(Collection<?> collection, EasyExcelUtil.ResponType responType) {
         responType.setResponse(response);
         try {
             EasyExcel.write(response.getOutputStream(), T.class).sheet().doWrite((List) collection);

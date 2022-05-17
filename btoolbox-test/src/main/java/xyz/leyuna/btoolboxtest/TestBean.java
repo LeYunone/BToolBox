@@ -1,5 +1,6 @@
 package xyz.leyuna.btoolboxtest;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.Data;
 
 /**
@@ -10,7 +11,9 @@ import lombok.Data;
 @Data
 public class TestBean {
 
+    @ExcelProperty(value = "testId")
     private String id;
 
+    @ExcelProperty(value = "testName")
     private String testName;
 }

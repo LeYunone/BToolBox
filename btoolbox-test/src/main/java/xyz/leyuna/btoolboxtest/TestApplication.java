@@ -15,9 +15,9 @@ public class TestApplication {
     public static void main(String[] args) {
 
         TestBean t = new TestBean();
+        t.setTestName("ttt");
         List<TestBean> list = new ArrayList<>();
         list.add(t);
-        EasyExcelUtil easyExcelUtil = new EasyExcelUtil();
-        easyExcelUtil.downloadXlsx(list,TestBean::getTestName);
+        EasyExcelUtil.downloadXlsx(list,"E:/test.xlsx",TestBean::getTestName);
     }
 }
