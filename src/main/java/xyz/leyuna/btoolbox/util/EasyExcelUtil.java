@@ -23,8 +23,6 @@ public class EasyExcelUtil {
     @Resource
     private static HttpServletResponse response;
 
-    private Function function;
-
     /**
      * 定义ResponseType的设置方式
      */
@@ -54,11 +52,6 @@ public class EasyExcelUtil {
 
     }
 
-    class exportClass {
-        @ExcelProperty
-        Object object;
-    }
-
     public static <T> void downloadXlsx(Collection<T> collection) {
         downloadXlsx(collection, ResponType.OCTET_STREAM);
     }
@@ -69,7 +62,7 @@ public class EasyExcelUtil {
      * @param collection
      * @param function
      */
-    public static <T, R> void downloadXlsx(Collection<T> collection, File file, FieldNameFuction<T, R> function) {
+    public static <T, R> void downloadXlsx(Collection<T> collection,FieldNameFuction<T, R> function) throws IOException {
         T next = collection.iterator().next();
         Class clazz = next.getClass();
         //分析属性，排除除了指定属性外所有属性
@@ -81,11 +74,7 @@ public class EasyExcelUtil {
         //获得属性名
         String fieldName = FieldUtil.getFieldName(function);
         set.remove(fieldName);
-        EasyExcel.write(file,clazz).excludeColumnFiledNames(set).sheet().doWrite(new ArrayList(collection));
-    }
-
-    public static <T, R> void downloadXlsx(Collection<T> collection, String fileName, FieldNameFuction<T, R> function) {
-        downloadXlsx(collection,new File(fileName),function);
+        EasyExcel.write(response.getOutputStream(),clazz).excludeColumnFiledNames(set).sheet().doWrite(new ArrayList(collection));
     }
 
     /**
